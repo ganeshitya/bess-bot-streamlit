@@ -89,7 +89,7 @@ def level_2():
         st.session_state.level = 1
         st.session_state.show_next = False
         st.rerun()
-
+        printf ("https://tinyurl.com/dg-bess22")
 # Main flow
 if st.session_state.level == 1:
     level_1()
