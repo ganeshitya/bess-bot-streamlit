@@ -47,7 +47,7 @@ def level_1():
 
 # Level 2: CO2 emissions game
 def level_2():
-    st.title("🔵 Level 2: Guess the CO₂ Emissions")
+    st.title("🔵 Level 2: Guess the CO₂ Emissions | Estimated Caluclations for Education Purpose only")
     st.markdown("**Choose a DG Size and Runtime. Then guess the CO₂ emissions.**")
 
     col1, col2 = st.columns(2)
