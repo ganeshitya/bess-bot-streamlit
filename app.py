@@ -80,7 +80,7 @@ def level_2():
                 # Show article link
         st.markdown("---")
         st.markdown("📖 Want to understand why battery storage is the smarter choice?")
-        st.markdown("[👉 Read the full article on Medium](https://medium.com/your-article-url-here)")
+        st.markdown("[👉 Read the full article on Medium](https://medium.com/@ganeshitya/goodbye-diesel-why-battery-energy-storage-is-the-future-for-backup-power-in-offices-retail-a0b691926ece?sk=af52b2f3361208241a4da703f81e331a)")
 
         # Graph
         x = [i for i in np.arange(0.5, 10.5, 0.5)]
