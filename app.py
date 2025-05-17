@@ -88,7 +88,7 @@ def level_2():
     if st.button("🔄 Restart Game"):
         st.session_state.level = 1
         st.session_state.show_next = False
-        st.experimental_rerun()
+        st.rerun()
 
 # Main flow
 if st.session_state.level == 1:
