@@ -1,46 +1,57 @@
 import streamlit as st
+import plotly.graph_objects as go
+import numpy as np
 
-st.set_page_config(page_title="BESS Bot", page_icon="🔋")
+st.set_page_config(page_title="CO₂ Explorer", page_icon="🌱")
 
-st.title("🔋 BESS Bot – Replace Your Diesel Generator")
-st.write("Let's find the right Battery Energy Storage System (BESS) size to replace your Diesel Generator for **2 hours backup**.")
+st.title("🌱 CO₂ Explorer – Visualize Emissions from Diesel Generators")
 
-# Input fields
-dg_rating = st.number_input("1️⃣ Enter your current Diesel Generator size (in kVA)", min_value=5, max_value=500, value=125)
-load_type = st.selectbox("2️⃣ Select your load type", ["Office", "Retail", "Mixed"])
-has_solar = st.radio("3️⃣ Do you have rooftop solar installed?", ["Yes", "No"])
+st.markdown("""
+Move the slider below to simulate how **runtime (in hours)** of a diesel generator affects **CO₂ emissions**. 
+This is based on average generator load and diesel emission factors.
+""")
 
-# Constants (adjustable)
-load_factor = 0.8  # real-world DG loading
-backup_duration = 2  # hours
-efficiency = 0.9  # inverter + battery combined efficiency
+# Inputs
+dg_rating = st.slider("Diesel Generator Size (in kVA)", min_value=10, max_value=500, value=100, step=10)
+runtime = st.slider("Runtime (in hours)", min_value=0.5, max_value=10.0, value=2.0, step=0.5)
 
-# Estimate energy required
-real_load_kw = dg_rating * load_factor
-required_kwh = real_load_kw * backup_duration / efficiency
+# Constants
+load_factor = 0.8  # real operating load
+diesel_emission_factor = 0.8  # kg CO2/kWh
 
-# Estimate inverter size
-recommended_inverter_kva = dg_rating  # inverter should match DG size
+# Calculations
+actual_kw = dg_rating * load_factor
+energy_used = actual_kw * runtime
+co2_emitted = energy_used * diesel_emission_factor
 
-# Environmental savings
-diesel_emissions_factor = 0.8  # kg CO2 per kWh from diesel
-co2_saved = required_kwh * diesel_emissions_factor
+# Generate curve
+runtimes = np.linspace(0.5, 10, 50)
+co2_values = (dg_rating * load_factor * runtimes) * diesel_emission_factor
 
-# Payback logic (rough estimate)
-if has_solar == "Yes":
-    payback_years = 4
-else:
-    payback_years = 6
+# 3D-Style Plot
+fig = go.Figure()
+fig.add_trace(go.Scatter3d(
+    x=runtimes,
+    y=[dg_rating] * len(runtimes),
+    z=co2_values,
+    mode='lines+markers',
+    line=dict(color='green', width=5),
+    marker=dict(size=4),
+    name="CO₂ Emissions"
+))
 
-# Output
-if st.button("🔍 Calculate BESS Recommendation"):
-    st.subheader("✅ Your BESS Recommendation:")
-    st.markdown(f"- 🔋 **Battery Size:** {required_kwh:.1f} kWh")
-    st.markdown(f"- ⚡ **Inverter Size:** {recommended_inverter_kva:.0f} kVA")
-    st.markdown(f"- 🌱 **CO2 Savings (per use):** ~{co2_saved:.0f} kg CO2 avoided")
-    st.markdown(f"- 💰 **Estimated Payback:** {payback_years} years")
+fig.update_layout(
+    scene=dict(
+        xaxis_title='Runtime (Hours)',
+        yaxis_title='DG Size (kVA)',
+        zaxis_title='CO₂ Emitted (kg)',
+    ),
+    margin=dict(l=10, r=10, b=10, t=40),
+    height=600
+)
 
-    st.success("You're ready to move beyond diesel! 🚀")
+st.plotly_chart(fig, use_container_width=True)
 
+st.info(f"🔍 A {dg_rating} kVA DG running for {runtime} hours emits approximately **{co2_emitted:.1f} kg of CO₂**.")
 st.markdown("---")
-st.markdown("Made with ❤️ by [Ganesh](https://medium.com/@ganeshitya)")
+st.caption("Made by Ganesh ✨ | Follow on [Medium](https://medium.com/@ganeshitya)")
