@@ -77,6 +77,10 @@ def level_2():
         else:
             st.error(f"😢 Not quite. Actual emission = {actual_emissions} kg CO₂. Try again!")
             st.image("https://em-content.zobj.net/thumbs/240/whatsapp/326/crying-face_1f622.png", width=100)
+                # Show article link
+        st.markdown("---")
+        st.markdown("📖 Want to understand why battery storage is the smarter choice?")
+        st.markdown("[👉 Read the full article on Medium](https://medium.com/your-article-url-here)")
 
         # Graph
         x = [i for i in np.arange(0.5, 10.5, 0.5)]
@@ -89,7 +93,7 @@ def level_2():
         st.session_state.level = 1
         st.session_state.show_next = False
         st.rerun()
-        printf ("https://tinyurl.com/dg-bess22")
+    
 # Main flow
 if st.session_state.level == 1:
     level_1()
