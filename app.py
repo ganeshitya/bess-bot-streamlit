@@ -1,57 +1,63 @@
 import streamlit as st
-import plotly.graph_objects as go
 import numpy as np
 
-st.set_page_config(page_title="CO₂ Explorer", page_icon="🌱")
+st.set_page_config(page_title="Outsmart the Diesel", page_icon="♻️", layout="centered")
 
-st.title("🌱 CO₂ Explorer – Visualize Emissions from Diesel Generators")
+st.title("🎮 Outsmart the Diesel – A Climate Quiz Game")
 
-st.markdown("""
-Move the slider below to simulate how **runtime (in hours)** of a diesel generator affects **CO₂ emissions**. 
-This is based on average generator load and diesel emission factors.
-""")
+# State tracker
+if "level" not in st.session_state:
+    st.session_state.level = 1
+if "score" not in st.session_state:
+    st.session_state.score = 0
 
-# Inputs
-dg_rating = st.slider("Diesel Generator Size (in kVA)", min_value=10, max_value=500, value=100, step=10)
-runtime = st.slider("Runtime (in hours)", min_value=0.5, max_value=10.0, value=2.0, step=0.5)
+# Level 1: Quiz questions
+def level_1():
+    st.subheader("🟢 Level 1: Basics")
 
-# Constants
-load_factor = 0.8  # real operating load
-diesel_emission_factor = 0.8  # kg CO2/kWh
+    q1 = st.radio("1️⃣ What gas is primarily emitted by diesel generators?", 
+                  ["Oxygen", "CO₂", "Hydrogen", "Nitrogen"], key="q1")
 
-# Calculations
-actual_kw = dg_rating * load_factor
-energy_used = actual_kw * runtime
-co2_emitted = energy_used * diesel_emission_factor
+    q2 = st.radio("2️⃣ What's the fuel used in a typical DG?", 
+                  ["Solar", "Diesel", "Battery", "Coal"], key="q2")
 
-# Generate curve
-runtimes = np.linspace(0.5, 10, 50)
-co2_values = (dg_rating * load_factor * runtimes) * diesel_emission_factor
+    if st.button("✅ Submit Answers"):
+        if q1 == "CO₂" and q2 == "Diesel":
+            st.success("✅ Correct! Moving to Level 2...")
+            st.session_state.level = 2
+        else:
+            st.error("❌ Oops! Try again.")
 
-# 3D-Style Plot
-fig = go.Figure()
-fig.add_trace(go.Scatter3d(
-    x=runtimes,
-    y=[dg_rating] * len(runtimes),
-    z=co2_values,
-    mode='lines+markers',
-    line=dict(color='green', width=5),
-    marker=dict(size=4),
-    name="CO₂ Emissions"
-))
+# Level 2: Emissions guessing game
+def level_2():
+    st.subheader("🔵 Level 2: Guess the CO₂ Emissions")
 
-fig.update_layout(
-    scene=dict(
-        xaxis_title='Runtime (Hours)',
-        yaxis_title='DG Size (kVA)',
-        zaxis_title='CO₂ Emitted (kg)',
-    ),
-    margin=dict(l=10, r=10, b=10, t=40),
-    height=600
-)
+    st.markdown("**Choose a DG Size and Runtime. Then guess the CO₂ emissions.**")
 
-st.plotly_chart(fig, use_container_width=True)
+    dg_size = st.slider("DG Size (kVA)", 10, 500, 100, step=10)
+    runtime = st.slider("Runtime (hours)", 0.5, 10.0, 2.0, step=0.5)
+    
+    # Calculation
+    load_factor = 0.8
+    emission_factor = 0.8  # kg CO2 per kWh
+    energy = dg_size * load_factor * runtime
+    actual_emissions = energy * emission_factor
 
-st.info(f"🔍 A {dg_rating} kVA DG running for {runtime} hours emits approximately **{co2_emitted:.1f} kg of CO₂**.")
-st.markdown("---")
-st.caption("Made by Ganesh ✨ | Follow on [Medium](https://medium.com/@ganeshitya)")
+    user_guess = st.number_input("💭 Your Guess (in kg CO₂)", min_value=0.0, step=1.0)
+
+    if st.button("🎯 Submit Guess"):
+        lower = actual_emissions * 0.9
+        upper = actual_emissions * 1.1
+
+        if lower <= user_guess <= upper:
+            st.balloons()
+            st.success(f"🎉 You nailed it! Actual emission = {actual_emissions:.1f} kg CO₂")
+            st.markdown("👉 [Learn how BESS replaces DGs](https://medium.com/@ganeshitya)")
+        else:
+            st.warning(f"📉 Not quite. Actual emission = {actual_emissions:.1f} kg CO₂. Try again!")
+
+# Run appropriate level
+if st.session_state.level == 1:
+    level_1()
+elif st.session_state.level == 2:
+    level_2()
